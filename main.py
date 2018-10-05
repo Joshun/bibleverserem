@@ -1,9 +1,19 @@
 import requests
 import config
-from win10toast import ToastNotifier
+# from win10toast import ToastNotifier
 from time import sleep
 import math
 from auth import auth_token
+import platform
+import winbibversedisplay
+
+
+print(platform.system())
+
+if platform.system() == 'Windows':
+    bible_verse_display = winbibversedisplay.WinBibleVerseDisplay()
+else:
+    raise NotImplementedError("OS not supported")
 
 
 
@@ -26,7 +36,7 @@ def get_passage_text(passage):
 
 #   print(r.json()['passages'])
 
-toaster = ToastNotifier()
+# toaster = ToastNotifier()
 
 while True:
     for passage in config.passages:
@@ -48,7 +58,8 @@ while True:
             print("split: " + str(split))
             split_passage = passage_text_words[split*config.settings["split_words"]:(split+1)*config.settings["split_words"]]
             print(split_passage)
-            toaster.show_toast(reference, " ".join(split_passage), duration=math.ceil(2 + 0.1*len(passage_text_words)))
+            # toaster.show_toast(reference, " ".join(split_passage), duration=math.ceil(2 + 0.1*len(passage_text_words)))
+            bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
             
 
 
