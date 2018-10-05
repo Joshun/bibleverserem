@@ -6,6 +6,8 @@ import math
 from auth import auth_token
 
 
+
+
 #r = requests.get(
 #    'https://api.esv.org/v3/passage/text/?q=John+11:35-John+11:37',
 #    params={'include-verse-numbers': 'false'},
@@ -18,7 +20,7 @@ def get_passage_text(passage):
     r = requests.get(
         'https://api.esv.org/v3/passage/text/?q={0}'.format(encoded_passage),
         params={'include-verse-numbers': 'false', 'include-headings': 'false', 'include-footnotes': 'false'},
-        headers={'Authorization': 'Token 4f5ab1c47d563c0dff34f2bd152619ddc7dab676'}
+        headers={'Authorization': 'Token {}'.format(auth_token)}
         )
     return r
 
