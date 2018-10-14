@@ -4,12 +4,29 @@ import tkinter.messagebox
 import tkinter.simpledialog
 import tkinter.scrolledtext
 
-import main
+import requests
+import platform
+import winbibversedisplay
+
+import math
+
+from time import sleep
+from auth import auth_token
+import config
 
 from functools import partial
 
 class BibVerseSettings:
     def __init__(self):
+        print(platform.system())
+
+        if platform.system() == 'Windows':
+            self.bible_verse_display = winbibversedisplay.WinBibleVerseDisplay()
+        else:
+            raise NotImplementedError("OS not supported")
+
+
+
         self.main_window = tk.Tk()
 
         self.settings_open = False
@@ -21,8 +38,9 @@ class BibVerseSettings:
         
         # label = ttk.Label(self.main_window, text=)
 
-        launch_args = partial(main.launch, self.verses)
-        configure_btn = ttk.Button(self.main_window, text="Launch", command=launch_args)
+        # launch_args = partial(main.launch, self.verses)
+        # configure_btn = ttk.Button(self.main_window, text="Launch", command=launch_args)
+        configure_btn = ttk.Button(self.main_window, text="Launch", command=self.launch)
         start_btn = ttk.Button(self.main_window, text="Settings", command=self.toggle_settings)
 
         configure_btn.pack()
@@ -96,7 +114,71 @@ class BibVerseSettings:
 
     def get_verses(self):
         return self.verses
+
     
+    def launch(self):
+        passages = self.verses.strip().split("\n")
+
+        # for p in passages:
+        #     if p == "":
+        #         passages.remove(p)
+
+        print(len(passages))
+        print(passages)
+
+        while True:
+
+            for passage in passages:
+                print("passage " + passage)
+                # code here
+                r = get_passage_text(passage)
+                passage_text = r.json()['passages'][0]
+
+                #toaster.show_toast('bibverserem', r.json()['passages'][0], duration=10)
+                print(passage_text)
+                reference, verses = passage_text.split('\n\n')
+                print(verses)
+                    
+
+                passage_text_words = verses.split(" ")
+
+                splits = math.ceil(len(passage_text_words)/int(config.settings["split_words"]))
+
+                for split in range(splits):
+                    print("split: " + str(split))
+                    split_passage = passage_text_words[split*config.settings["split_words"]:(split+1)*config.settings["split_words"]]
+                    print(split_passage)
+                    # toaster.show_toast(reference, " ".join(split_passage), duration=math.ceil(2 + 0.1*len(passage_text_words)))
+                    self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
+                    
+
+
+                sleep(int(config.settings["cycle_time"]) * 60)
+    
+    
+
+
+
+#r = requests.get(
+#    'https://api.esv.org/v3/passage/text/?q=John+11:35-John+11:37',
+#    params={'include-verse-numbers': 'false'},
+#    headers={'Authorization': 'Token 4f5ab1c47d563c0dff34f2bd152619ddc7dab676'}
+#    )
+
+
+def get_passage_text(passage):
+    encoded_passage = passage.replace(" ", "+")
+    r = requests.get(
+        'https://api.esv.org/v3/passage/text/?q={0}'.format(encoded_passage),
+        params={'include-verse-numbers': 'false', 'include-headings': 'false', 'include-footnotes': 'false'},
+        headers={'Authorization': 'Token {}'.format(auth_token)}
+        )
+    return r
+
+#   print(r.json()['passages'])
+
+# toaster = ToastNotifier()
+
 
 
 
