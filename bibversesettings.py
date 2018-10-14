@@ -50,8 +50,8 @@ class BibVerseSettings:
 
         cycle_time_label = ttk.Label(self.settings_frame, text="Cycle time (mins)")
         cycle_time_label.grid(row=0, column=0)
-        cycle_time_slider = tk.Scale(self.settings_frame, from_=1, to=60, orient=tk.HORIZONTAL, resolution=1)
-        cycle_time_slider.grid(row=0, column=1)
+        self.cycle_time_slider = tk.Scale(self.settings_frame, from_=1, to=60, orient=tk.HORIZONTAL, resolution=1)
+        self.cycle_time_slider.grid(row=0, column=1)
 
         settings_delay_label = ttk.Label(self.settings_frame, text="Delay per word (secs)")
         settings_delay_label.grid(row=1, column=0)
@@ -126,6 +126,9 @@ class BibVerseSettings:
         print(len(passages))
         print(passages)
 
+        cycle_time = self.cycle_time_slider.get()
+        
+
         while True:
 
             for passage in passages:
@@ -153,7 +156,8 @@ class BibVerseSettings:
                     
 
 
-                sleep(int(config.settings["cycle_time"]) * 60)
+                # sleep(int(config.settings["cycle_time"]) * 60)
+                sleep(int(cycle_time) * 60)
     
     
 
