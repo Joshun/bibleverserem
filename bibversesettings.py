@@ -56,8 +56,8 @@ class BibVerseSettings:
         settings_delay_label = ttk.Label(self.settings_frame, text="Delay per word (secs)")
         settings_delay_label.grid(row=1, column=0)
 
-        settings_delay_slider = tk.Scale(self.settings_frame, from_=0, to=1, orient=tk.HORIZONTAL, resolution=0.1)
-        settings_delay_slider.grid(row=1, column=1)
+        self.settings_delay_slider = tk.Scale(self.settings_frame, from_=0.1, to=1, orient=tk.HORIZONTAL, resolution=0.1)
+        self.settings_delay_slider.grid(row=1, column=1)
 
         manage_verses_button = ttk.Button(self.settings_frame, text="Verses...", command=self.show_verses_window)
         manage_verses_button.grid(row=2, column=0, columnspan=2)
@@ -127,6 +127,7 @@ class BibVerseSettings:
         print(passages)
 
         cycle_time = self.cycle_time_slider.get()
+        per_word_time = self.settings_delay_slider.get()
         
 
         while True:
@@ -152,7 +153,8 @@ class BibVerseSettings:
                     split_passage = passage_text_words[split*config.settings["split_words"]:(split+1)*config.settings["split_words"]]
                     print(split_passage)
                     # toaster.show_toast(reference, " ".join(split_passage), duration=math.ceil(2 + 0.1*len(passage_text_words)))
-                    self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
+                    # self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
+                    self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(passage_text_words)))
                     
 
 
