@@ -7,6 +7,8 @@ from auth import auth_token
 import platform
 import winbibversedisplay
 
+import bibversesettings
+
 
 print(platform.system())
 
@@ -38,32 +40,37 @@ def get_passage_text(passage):
 
 # toaster = ToastNotifier()
 
-while True:
-    for passage in config.passages:
-        # code here
-        r = get_passage_text(passage)
-        passage_text = r.json()['passages'][0]
+def launch(passages):
+    passages = passages.split("\n")
 
-        #toaster.show_toast('bibverserem', r.json()['passages'][0], duration=10)
-        print(passage_text)
-        reference, verses = passage_text.split('\n\n')
-        print(verses)
-            
+    while True:
 
-        passage_text_words = verses.split(" ")
+        for passage in passages:
+            print("passage " + passage)
+            # code here
+            r = get_passage_text(passage)
+            passage_text = r.json()['passages'][0]
 
-        splits = math.ceil(len(passage_text_words)/int(config.settings["split_words"]))
+            #toaster.show_toast('bibverserem', r.json()['passages'][0], duration=10)
+            print(passage_text)
+            reference, verses = passage_text.split('\n\n')
+            print(verses)
+                
 
-        for split in range(splits):
-            print("split: " + str(split))
-            split_passage = passage_text_words[split*config.settings["split_words"]:(split+1)*config.settings["split_words"]]
-            print(split_passage)
-            # toaster.show_toast(reference, " ".join(split_passage), duration=math.ceil(2 + 0.1*len(passage_text_words)))
-            bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
-            
+            passage_text_words = verses.split(" ")
+
+            splits = math.ceil(len(passage_text_words)/int(config.settings["split_words"]))
+
+            for split in range(splits):
+                print("split: " + str(split))
+                split_passage = passage_text_words[split*config.settings["split_words"]:(split+1)*config.settings["split_words"]]
+                print(split_passage)
+                # toaster.show_toast(reference, " ".join(split_passage), duration=math.ceil(2 + 0.1*len(passage_text_words)))
+                bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
+                
 
 
-        sleep(int(config.settings["cycle_time"]) * 60)
+            sleep(int(config.settings["cycle_time"]) * 60)
 
 
 #passage = r.json()['passages'][0]

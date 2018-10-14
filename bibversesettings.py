@@ -1,14 +1,28 @@
 import tkinter as tk
 import tkinter.ttk as ttk
+import tkinter.messagebox
+import tkinter.simpledialog
+import tkinter.scrolledtext
+
+import main
+
+from functools import partial
+
 class BibVerseSettings:
     def __init__(self):
         self.main_window = tk.Tk()
 
         self.settings_open = False
         self.verses_window_open = False
+
+        self.verse_entry = None
+
+        self.verses = ""
         
         # label = ttk.Label(self.main_window, text=)
-        configure_btn = ttk.Button(self.main_window, text="Launch")
+
+        launch_args = partial(main.launch, self.verses)
+        configure_btn = ttk.Button(self.main_window, text="Launch", command=launch_args)
         start_btn = ttk.Button(self.main_window, text="Settings", command=self.toggle_settings)
 
         configure_btn.pack()
@@ -46,12 +60,44 @@ class BibVerseSettings:
         self.settings_open = not self.settings_open
 
     def show_verses_window(self):
-        verses_window = tk.Toplevel(self.main_window)
+        def save_verses():
+            self.verses = text.get("1.0", tk.END)
+            print(self.verses)
+            self.verses_window.destroy()
+        def cancel():
+            self.verses_window.destroy()
 
-        label = ttk.Label(verses_window, text="Verses window")
-        label.pack()
-        verses_window.grab_set()
-        verses_window.mainloop()
+        # def add_verse():
+        #     # tk.messagebox.askquestion(title="New verse", message="input verse")
+        #     tk.simpledialog.askstring(title="New verse", prompt="input verse")
+
+        self.verses_window = tk.Toplevel(self.main_window)
+
+        label = ttk.Label(self.verses_window, text="Enter verses, one per line")
+        label.grid(row=0, column=0, columnspan=2)
+
+        text = tk.scrolledtext.Text(self.verses_window)
+        text.grid(row=1, column=0, columnspan=2)
+
+        if len(self.verses) > 0:
+            text.insert("1.0", self.verses, tk.END)
+
+        confirm_button = ttk.Button(self.verses_window, text="Confirm", command=save_verses)
+        confirm_button.grid(row=2, column=0)
+
+        cancel_button = ttk.Button(self.verses_window, text="Cancel", command=cancel)
+        cancel_button.grid(row=2, column=1)
+
+        # add_btn = ttk.Button(self.verses_window, text="+", command=add_verse)
+        # add_btn.pack()
+
+        self.verses_window.grab_set()
+        self.verses_window.mainloop()
+
+    def get_verses(self):
+        return self.verses
+    
+
 
 
 
