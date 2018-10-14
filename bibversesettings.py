@@ -10,14 +10,21 @@ import winbibversedisplay
 
 import math
 
+import datetime
+
 from time import sleep
 from auth import auth_token
 import config
+import threading
 
 from functools import partial
 
-class BibVerseSettings:
+class BibVerseSettings(threading.Thread):
     def __init__(self):
+        super().__init__()
+
+        self.thread_done = False
+        self.started = False
         print(platform.system())
 
         if platform.system() == 'Windows':
@@ -40,11 +47,13 @@ class BibVerseSettings:
 
         # launch_args = partial(main.launch, self.verses)
         # configure_btn = ttk.Button(self.main_window, text="Launch", command=launch_args)
-        configure_btn = ttk.Button(self.main_window, text="Launch", command=self.launch)
-        start_btn = ttk.Button(self.main_window, text="Settings", command=self.toggle_settings)
+        start_btn = ttk.Button(self.main_window, text="Launch", command=self.launch)
+        stop_btn = ttk.Button(self.main_window, text="Stop", command=self.stop)
+        settings_btn = ttk.Button(self.main_window, text="Settings", command=self.toggle_settings)
 
-        configure_btn.pack()
         start_btn.pack()
+        stop_btn.pack()
+        settings_btn.pack()
 
         self.settings_frame = ttk.Frame(self.main_window)
 
@@ -115,51 +124,79 @@ class BibVerseSettings:
     def get_verses(self):
         return self.verses
 
-    
     def launch(self):
-        passages = self.verses.strip().split("\n")
+        self.thread_done = False
 
-        # for p in passages:
-        #     if p == "":
-        #         passages.remove(p)
+        if not self.started:
+            self.start()
+            self.started = True
+    
+    def stop(self):
+        self.thread_done = True
 
-        print(len(passages))
-        print(passages)
-
-        cycle_time = self.cycle_time_slider.get()
-        per_word_time = self.settings_delay_slider.get()
-        
-
+    def run(self):
         while True:
+            passages = self.verses.strip().split("\n")
 
-            for passage in passages:
-                print("passage " + passage)
-                # code here
-                r = get_passage_text(passage)
-                passage_text = r.json()['passages'][0]
+            # for p in passages:
+            #     if p == "":
+            #         passages.remove(p)
 
-                #toaster.show_toast('bibverserem', r.json()['passages'][0], duration=10)
-                print(passage_text)
-                reference, verses = passage_text.split('\n\n')
-                print(verses)
-                    
+            print(len(passages))
+            print(passages)
 
-                passage_text_words = verses.split(" ")
+            cycle_time = self.cycle_time_slider.get()
+            per_word_time = self.settings_delay_slider.get()
+            
 
-                splits = math.ceil(len(passage_text_words)/int(config.settings["split_words"]))
+            while not self.thread_done:
 
-                for split in range(splits):
-                    print("split: " + str(split))
-                    split_passage = passage_text_words[split*config.settings["split_words"]:(split+1)*config.settings["split_words"]]
-                    print(split_passage)
-                    # toaster.show_toast(reference, " ".join(split_passage), duration=math.ceil(2 + 0.1*len(passage_text_words)))
-                    # self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
-                    self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(passage_text_words)))
-                    
+                for passage in passages:
+                    print("passage " + passage)
+                    # code here
+                    r = get_passage_text(passage)
+                    passage_text = r.json()['passages'][0]
+
+                    #toaster.show_toast('bibverserem', r.json()['passages'][0], duration=10)
+                    print(passage_text)
+                    reference, verses = passage_text.split('\n\n')
+                    print(verses)
+                        
+
+                    passage_text_words = verses.split(" ")
+
+                    splits = math.ceil(len(passage_text_words)/int(config.settings["split_words"]))
+
+                    for split in range(splits):
+                        print("split: " + str(split))
+                        split_passage = passage_text_words[split*config.settings["split_words"]:(split+1)*config.settings["split_words"]]
+                        print(split_passage)
+                        # toaster.show_toast(reference, " ".join(split_passage), duration=math.ceil(2 + 0.1*len(passage_text_words)))
+                        # self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
+                        self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(passage_text_words)))
+                        
 
 
-                # sleep(int(config.settings["cycle_time"]) * 60)
-                sleep(int(cycle_time) * 60)
+                    # sleep(int(config.settings["cycle_time"]) * 60)
+                    # sleep(int(cycle_time) * 60)
+
+                    start_d = datetime.datetime.now()
+                    while not self.thread_done:
+                        now_d = datetime.datetime.now()
+                        if (now_d - start_d).seconds > (cycle_time*60):
+                            self.thread_done = True
+                        else:
+                            sleep(0.1)
+                    print("end")
+
+                    if self.thread_done:
+                        break
+                print("out end")
+                # self.join()
+
+
+        sleep(0.01)
+
     
     
 
