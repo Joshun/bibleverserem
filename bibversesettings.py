@@ -47,12 +47,15 @@ class BibVerseSettings(threading.Thread):
 
         # launch_args = partial(main.launch, self.verses)
         # configure_btn = ttk.Button(self.main_window, text="Launch", command=launch_args)
-        start_btn = ttk.Button(self.main_window, text="Launch", command=self.launch)
-        stop_btn = ttk.Button(self.main_window, text="Stop", command=self.stop)
+        self.start_btn = ttk.Button(self.main_window, text="Launch", command=self.launch)
+        self.stop_btn = ttk.Button(self.main_window, text="Stop", command=self.stop)
         settings_btn = ttk.Button(self.main_window, text="Settings", command=self.toggle_settings)
 
-        start_btn.pack()
-        stop_btn.pack()
+        self.stop_btn.config(state=tk.DISABLED)
+
+
+        self.start_btn.pack()
+        self.stop_btn.pack()
         settings_btn.pack()
 
         self.settings_frame = ttk.Frame(self.main_window)
@@ -127,12 +130,17 @@ class BibVerseSettings(threading.Thread):
     def launch(self):
         self.thread_done = False
 
+        self.stop_btn.config(state=tk.NORMAL)
+        self.start_btn.config(state=tk.DISABLED)
+
         if not self.started:
             self.start()
             self.started = True
     
     def stop(self):
         self.thread_done = True
+        self.stop_btn.config(state=tk.DISABLED)
+        self.start_btn.config(state=tk.NORMAL)
 
     def run(self):
         while True:
@@ -184,7 +192,8 @@ class BibVerseSettings(threading.Thread):
                     while not self.thread_done:
                         now_d = datetime.datetime.now()
                         if (now_d - start_d).seconds > (cycle_time*60):
-                            self.thread_done = True
+                            # self.thread_done = True
+                            break
                         else:
                             sleep(0.1)
                     print("end")
