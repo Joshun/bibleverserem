@@ -17,14 +17,16 @@ from auth import auth_token
 import config
 import threading
 
+import sys
+
 from functools import partial
 
-class BibVerseSettings(threading.Thread):
+class BibVerseSettings:
     def __init__(self):
-        super().__init__()
 
         self.thread_done = False
         self.started = False
+        self.closing = False
         print(platform.system())
 
         if platform.system() == 'Windows':
@@ -33,6 +35,7 @@ class BibVerseSettings(threading.Thread):
             raise NotImplementedError("OS not supported")
 
 
+        self.worker_thread = None
 
         self.main_window = tk.Tk()
 
@@ -42,8 +45,12 @@ class BibVerseSettings(threading.Thread):
         self.verse_entry = None
 
         self.verses = ""
+
+        self.settings = { "verses": "" }
         
         # label = ttk.Label(self.main_window, text=)
+
+        self.main_window.protocol("WM_DELETE_WINDOW", self.close)
 
         # launch_args = partial(main.launch, self.verses)
         # configure_btn = ttk.Button(self.main_window, text="Launch", command=launch_args)
@@ -134,13 +141,25 @@ class BibVerseSettings(threading.Thread):
         self.start_btn.config(state=tk.DISABLED)
 
         if not self.started:
-            self.start()
+            # self.start()
+            self.worker_thread = threading.Thread(target=self.run)
+            self.worker_thread.start()
+
             self.started = True
     
     def stop(self):
         self.thread_done = True
         self.stop_btn.config(state=tk.DISABLED)
         self.start_btn.config(state=tk.NORMAL)
+
+    def close(self):
+        print("CLOSE")
+        self.closing = True
+        self.stop()
+        self.worker_thread.join()
+        self.main_window.destroy()
+
+
 
     def run(self):
         while True:
@@ -204,11 +223,23 @@ class BibVerseSettings(threading.Thread):
                 # self.join()
 
 
-        sleep(0.01)
+            sleep(0.01)
+            if self.closing:
+                print('closing')
+
+                
+                break
+
+        # self.join()
+        # sys.exit(0)
+
 
     
     
-
+# class Worker(threading.Thread):
+#     def __init__(self, settings):
+#         self.settings = settings
+#     def launch
 
 
 #r = requests.get(
