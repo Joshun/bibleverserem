@@ -127,10 +127,19 @@ class BibVerseSettings:
         cancel_button = ttk.Button(self.verses_window, text="Cancel", command=cancel)
         cancel_button.grid(row=2, column=1)
 
+        # set focus
+        self.verses_window.focus_set()
+        text.focus_set()
+
         # add_btn = ttk.Button(self.verses_window, text="+", command=add_verse)
         # add_btn.pack()
 
         self.verses_window.grab_set()
+
+        # self.verses_window.lift()
+        # self.verses_window.attributes('-topmost', True)
+        # self.verses_window.attributes('-topmost', False)
+        # self.verses_window.deiconify()
         self.verses_window.mainloop()
 
     def get_verses(self):
