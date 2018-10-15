@@ -35,7 +35,9 @@ class BibVerseSettings:
             raise NotImplementedError("OS not supported")
 
 
-        self.worker_thread = None
+        # self.worker_thread = None
+        self.worker_thread = threading.Thread(target=self.run)
+
 
         self.main_window = tk.Tk()
 
@@ -142,7 +144,6 @@ class BibVerseSettings:
 
         if not self.started:
             # self.start()
-            self.worker_thread = threading.Thread(target=self.run)
             self.worker_thread.start()
 
             self.started = True
@@ -156,7 +157,8 @@ class BibVerseSettings:
         print("CLOSE")
         self.closing = True
         self.stop()
-        self.worker_thread.join()
+        if self.started:
+            self.worker_thread.join()
         self.main_window.destroy()
 
 
