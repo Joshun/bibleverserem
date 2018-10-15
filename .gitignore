@@ -109,3 +109,5 @@ venv.bak/
 # api keys
 auth.py
 
+# config file
+settings.json

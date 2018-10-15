@@ -21,6 +21,8 @@ import sys
 
 from functools import partial
 
+import json
+
 class BibVerseSettings:
     def __init__(self):
 
@@ -87,6 +89,7 @@ class BibVerseSettings:
         # settings_frame.
         # self.main_window.pack()
 
+        self.load_from_file()
         self.main_window.mainloop()
         
     def toggle_settings(self):
@@ -168,7 +171,25 @@ class BibVerseSettings:
         self.stop()
         if self.started:
             self.worker_thread.join()
+        
+        self.save_to_file()
         self.main_window.destroy()
+
+    def save_to_file(self):
+        file_structure = { "verses": self.verses, "cycle_time": self.cycle_time_slider.get(), "per_word_time": self.settings_delay_slider.get() }
+        with open("settings.json", "w") as f:
+            json.dump(file_structure, f)
+    
+    def load_from_file(self):
+        try:
+            with open("settings.json", "r") as f:
+                file_structure = json.load(f)
+                print(file_structure)
+                self.verses = file_structure["verses"]
+                self.cycle_time_slider.set(int(file_structure["cycle_time"]))
+                self.settings_delay_slider.set(float(file_structure["per_word_time"]))
+        except IOError:
+            print('config file not found')
 
 
 
