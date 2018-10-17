@@ -234,7 +234,9 @@ class BibVerseSettings:
                         print(split_passage)
                         # toaster.show_toast(reference, " ".join(split_passage), duration=math.ceil(2 + 0.1*len(passage_text_words)))
                         # self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
-                        self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(passage_text_words)))
+                        print(per_word_time)
+                        print(per_word_time*len(split_passage))
+                        self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(split_passage)))
                         
 
 
