@@ -238,7 +238,10 @@ class BibVerseSettings:
                         print(per_word_time*len(split_passage))
                         self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(split_passage)))
                         
-
+                        while self.bible_verse_display.active() and not self.thread_done:
+                            sleep(0.01)
+                        if self.thread_done:
+                            break
 
                     # sleep(int(config.settings["cycle_time"]) * 60)
                     # sleep(int(cycle_time) * 60)
@@ -250,7 +253,7 @@ class BibVerseSettings:
                             # self.thread_done = True
                             break
                         else:
-                            sleep(0.1)
+                            sleep(0.01)
                     print("end")
 
                     if self.thread_done:
