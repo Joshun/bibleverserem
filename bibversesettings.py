@@ -25,6 +25,7 @@ import sys
 from functools import partial
 
 import json
+import bibverseworker
 
 class BibVerseSettings:
     def __init__(self):
@@ -41,7 +42,8 @@ class BibVerseSettings:
 
 
         # self.worker_thread = None
-        self.worker_thread = threading.Thread(target=self.run)
+        # self.worker_thread = threading.Thread(target=self.run)
+        self.worker_thread = bibverseworker.BibVerseWorker()
 
 
         self.main_window = tk.Tk()
@@ -157,21 +159,26 @@ class BibVerseSettings:
         self.stop_btn.config(state=tk.NORMAL)
         self.start_btn.config(state=tk.DISABLED)
 
-        if not self.started:
-            # self.start()
-            self.worker_thread.start()
+        self.worker_thread.reset()
+        self.worker_thread.set_options(cycle_time=self.cycle_time_slider.get(), per_word_time=self.settings_delay_slider.get(), verses=self.verses)
 
+        if not self.started:
+            self.worker_thread.start()
             self.started = True
     
     def stop(self):
         self.thread_done = True
+        self.worker_thread.set_done()
         self.stop_btn.config(state=tk.DISABLED)
         self.start_btn.config(state=tk.NORMAL)
+
 
     def close(self):
         print("CLOSE")
         self.closing = True
         self.stop()
+        self.worker_thread.set_done()
+        self.worker_thread.set_closing()
         if self.started:
             self.worker_thread.join()
         
@@ -194,100 +201,7 @@ class BibVerseSettings:
         except IOError:
             print('config file not found')
 
-
-
-    def run(self):
-        while True:
-            passages = self.verses.strip().split("\n")
-
-            # for p in passages:
-            #     if p == "":
-            #         passages.remove(p)
-
-            print(len(passages))
-            print(passages)
-
-            cycle_time = self.cycle_time_slider.get()
-            per_word_time = self.settings_delay_slider.get()
-            
-
-            while not self.thread_done:
-
-                for passage in passages:
-                    print("passage " + passage)
-                    # code here
-                    r = get_passage_text(passage)
-                    passage_text = r.json()['passages'][0]
-
-                    #toaster.show_toast('bibverserem', r.json()['passages'][0], duration=10)
-                    print(passage_text)
-                    reference, verses = passage_text.split('\n\n')
-                    print(verses)
-                        
-
-                    passage_text_words = verses.split(" ")
-
-                    splits = math.ceil(len(passage_text_words)/int(config.settings["split_words"]))
-
-                    for split in range(splits):
-                        print("split: " + str(split))
-                        split_passage = passage_text_words[split*config.settings["split_words"]:(split+1)*config.settings["split_words"]]
-                        print(split_passage)
-                        # toaster.show_toast(reference, " ".join(split_passage), duration=math.ceil(2 + 0.1*len(passage_text_words)))
-                        # self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
-                        print(per_word_time)
-                        print(per_word_time*len(split_passage))
-                        self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(split_passage)))
-                        
-                        while self.bible_verse_display.active() and not self.thread_done:
-                            sleep(0.01)
-                        if self.thread_done:
-                            break
-
-                    # sleep(int(config.settings["cycle_time"]) * 60)
-                    # sleep(int(cycle_time) * 60)
-
-                    start_d = datetime.datetime.now()
-                    while not self.thread_done:
-                        now_d = datetime.datetime.now()
-                        if (now_d - start_d).seconds > (cycle_time*60):
-                            # self.thread_done = True
-                            break
-                        else:
-                            sleep(0.01)
-                    print("end")
-
-                    if self.thread_done:
-                        break
-                print("out end")
-                # self.join()
-
-
-            sleep(0.01)
-            if self.closing:
-                print('closing')
-
-                
-                break
-
-        # self.join()
-        # sys.exit(0)
-
-
-    
-    
-# class Worker(threading.Thread):
-#     def __init__(self, settings):
-#         self.settings = settings
-#     def launch
-
-
-#r = requests.get(
-#    'https://api.esv.org/v3/passage/text/?q=John+11:35-John+11:37',
-#    params={'include-verse-numbers': 'false'},
-#    headers={'Authorization': 'Token 4f5ab1c47d563c0dff34f2bd152619ddc7dab676'}
-#    )
-
+        
 
 def get_passage_text(passage):
     encoded_passage = passage.replace(" ", "+")
