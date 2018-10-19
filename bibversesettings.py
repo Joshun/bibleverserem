@@ -179,6 +179,10 @@ class BibVerseSettings:
         return self.verses
 
     def launch(self):
+        if len(self.verses.replace("\n", "")) == 0:
+            tkinter.messagebox.showinfo("Setup verses", "You must add verses in the settings first")
+            return
+
         self.thread_done = False
 
         self.stop_btn.config(state=tk.NORMAL)
