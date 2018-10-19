@@ -84,7 +84,12 @@ class BibVerseWorker(threading.Thread):
 
                 #toaster.show_toast('bibverserem', r.json()['passages'][0], duration=10)
                 print(passage_text)
-                reference, verses = passage_text.split('\n\n')
+                reference_loc = passage_text.find("\n")
+                reference = passage_text[:reference_loc]
+                verses = passage_text[reference_loc:]
+                verses = verses.replace("\n", " ")
+
+                # reference, verses = passage_text.split('\n\n')
                 print(verses)
                     
 
@@ -140,7 +145,7 @@ def get_passage_text(passage):
     encoded_passage = passage.replace(" ", "+")
     r = requests.get(
         'https://api.esv.org/v3/passage/text/?q={0}'.format(encoded_passage),
-        params={'include-verse-numbers': 'false', 'include-headings': 'false', 'include-footnotes': 'false'},
+        params={'include-verse-numbers': 'false', 'include-headings': 'false', 'include-footnotes': 'false', 'indent-poetry': 'false'},
         headers={'Authorization': 'Token {}'.format(auth_token)}
         )
     return r
