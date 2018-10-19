@@ -4,6 +4,8 @@ import tkinter.messagebox
 import tkinter.simpledialog
 import tkinter.scrolledtext
 
+
+
 import requests
 import platform
 
@@ -23,6 +25,7 @@ import threading
 import sys
 
 from functools import partial
+from queue import Queue, Empty
 
 import json
 import bibverseworker
@@ -43,9 +46,14 @@ class BibVerseSettings:
 
         # self.worker_thread = None
         # self.worker_thread = threading.Thread(target=self.run)
+
+        self.errors_queue = Queue()
+        self.errors_thread = threading.Thread(target=self.errors_process, daemon=True)
+        self.errors_thread.start()
+
         self.worker_thread = bibverseworker.BibVerseWorker()
         self.worker_thread.setDaemon(True)
-
+        self.worker_thread.set_errors_queue(self.errors_queue)
 
         self.main_window = tk.Tk()
 
@@ -57,6 +65,7 @@ class BibVerseSettings:
         self.verses = ""
 
         self.settings = { "verses": "" }
+
         
         # label = ttk.Label(self.main_window, text=)
 
@@ -97,6 +106,21 @@ class BibVerseSettings:
 
         self.load_from_file()
         self.main_window.mainloop()
+
+    def errors_process(self):
+        while True:
+            err = self.errors_queue.get()
+            print("Error:")
+            print(err)
+            tkinter.messagebox.showerror("Error", err)
+            self.stop()
+            
+            while not self.errors_queue.empty():
+                try:
+                    self.errors_queue.get(False)
+                except Empty:
+                    continue
+                self.errors_queue.task_done()
         
     def toggle_settings(self):
         # self.settings_window = tk.Toplevel(master=self.main_window)
