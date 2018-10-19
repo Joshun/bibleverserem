@@ -44,6 +44,7 @@ class BibVerseSettings:
         # self.worker_thread = None
         # self.worker_thread = threading.Thread(target=self.run)
         self.worker_thread = bibverseworker.BibVerseWorker()
+        self.worker_thread.setDaemon(True)
 
 
         self.main_window = tk.Tk()
@@ -179,11 +180,16 @@ class BibVerseSettings:
         self.stop()
         self.worker_thread.set_done()
         self.worker_thread.set_closing()
-        if self.started:
-            self.worker_thread.join()
-        
+
         self.save_to_file()
+
         self.main_window.destroy()
+
+        if self.started:
+            print('WAIT')
+            self.worker_thread.join()
+            print("done")
+        
 
     def save_to_file(self):
         file_structure = { "verses": self.verses, "cycle_time": self.cycle_time_slider.get(), "per_word_time": self.settings_delay_slider.get() }

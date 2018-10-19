@@ -113,6 +113,7 @@ class BibVerseWorker(threading.Thread):
                 print('closing')
                 break
                 # sys.exit(0)
+        print("END")
 
 
 def get_passage_text(passage):
