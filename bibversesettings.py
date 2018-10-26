@@ -98,6 +98,15 @@ class BibVerseSettings:
 
         manage_verses_button = ttk.Button(self.settings_frame, text="Verses...", command=self.show_verses_window)
         manage_verses_button.grid(row=2, column=0, columnspan=2)
+
+        self.chapter_verse_frame = tk.Frame(self.settings_frame)
+        self.chapter_verse_frame.grid(row=3, column=0, columnspan=2)
+
+        self.chapter_var = tk.StringVar()
+        options = ["Genesis", "Exodus"]
+        self.chapter_var.set(options[0])
+        chapter_menu = ttk.OptionMenu(self.chapter_verse_frame, self.chapter_var, options[0], *options)
+        chapter_menu.pack(side=tk.LEFT)
         # settings_frame.pack()
         
         # settings_frame.
