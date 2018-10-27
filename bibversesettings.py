@@ -4,16 +4,10 @@ import tkinter.messagebox
 import tkinter.simpledialog
 import tkinter.scrolledtext
 
-
-
 import requests
 import platform
 
-
-import winbibversedisplay
-
 import math
-
 
 import datetime
 
@@ -36,12 +30,17 @@ class BibVerseSettings:
         self.thread_done = False
         self.started = False
         self.closing = False
-        print(platform.system())
+        # print(platform.system())
 
-        if platform.system() == 'Windows':
-            self.bible_verse_display = winbibversedisplay.WinBibleVerseDisplay()
-        else:
-            raise NotImplementedError("OS not supported")
+        # if platform.system() == 'Windows':
+        #     import winbibversedisplay
+        #     self.bible_verse_display = winbibversedisplay.WinBibleVerseDisplay()
+        # elif platform.system() == 'Linux':
+        #     print("yay Linux")
+        #     import linbibversedisplay
+        #     self.bible_verse_display = linbibversedisplay.LinBibleVerseDisplay()
+        # else:
+        #     raise NotImplementedError("OS not supported")
 
 
         # self.worker_thread = None

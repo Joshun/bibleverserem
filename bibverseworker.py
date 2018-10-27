@@ -17,6 +17,9 @@ class BibVerseWorker(threading.Thread):
         if platform.system() == 'Windows':
             import winbibversedisplay
             self.bible_verse_display = winbibversedisplay.WinBibleVerseDisplay()
+        elif platform.system() == 'Linux':
+            import linbibversedisplay
+            self.bible_verse_display = linbibversedisplay.LinBibleVerseDisplay()
         else:
             raise NotImplementedError("OS not supported")
         
