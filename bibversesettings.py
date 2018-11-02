@@ -97,24 +97,64 @@ class BibVerseSettings:
         self.settings_delay_slider = tk.Scale(self.settings_frame, from_=0.1, to=1, orient=tk.HORIZONTAL, resolution=0.1)
         self.settings_delay_slider.grid(row=1, column=1)
 
-        manage_verses_button = ttk.Button(self.settings_frame, text="Verses...", command=self.show_verses_window)
-        manage_verses_button.grid(row=2, column=0, columnspan=2)
+        self.mode_select_frame = tk.Frame(self.settings_frame)
+        self.mode_select_frame.grid(row=2, column=0, columnspan=2)
+
+        self.mode_select_var = tk.IntVar(None, 1)
+
+        mode_select_radio_by_chapter = ttk.Radiobutton(self.mode_select_frame, text="By chapter", variable=self.mode_select_var, value=1, command=self.set_bychapter)
+        mode_select_radio_by_chapter.pack(side=tk.LEFT)
+        mode_select_custom = ttk.Radiobutton(self.mode_select_frame, text="Custom", variable=self.mode_select_var, value=2, command=self.set_custom)
+        mode_select_custom.pack()
+
+        self.manage_verses_button = ttk.Button(self.settings_frame, text="Verses...", command=self.show_verses_window)
+        self.manage_verses_button.grid(row=3, column=0, columnspan=2)
+        self.manage_verses_button.configure(state='disabled')
+
 
         self.chapter_verse_frame = tk.Frame(self.settings_frame)
-        self.chapter_verse_frame.grid(row=3, column=0, columnspan=2)
+        self.chapter_verse_frame.grid(row=4, column=0, columnspan=2)
 
-        self.chapter_var = tk.StringVar()
+        self.book_var = tk.StringVar()
         options = ["Genesis", "Exodus"]
-        self.chapter_var.set(options[0])
-        chapter_menu = ttk.OptionMenu(self.chapter_verse_frame, self.chapter_var, options[0], *options)
-        chapter_menu.pack(side=tk.LEFT)
+        self.book_chapters = {"Genesis": 50, "Exodus": 40}
+        self.book_var.set(options[0])
+        book_menu = ttk.OptionMenu(self.chapter_verse_frame, self.book_var, options[0], *options)
+        book_menu.pack(side=tk.LEFT)
+
+        self.book_var.trace("w", self.reload_chapters)
+
+        self.chapter_var = tk.IntVar()
+        chapters = range(1,51)
+        self.chapter_menu = ttk.OptionMenu(self.chapter_verse_frame, self.chapter_var, chapters[0], *chapters)
+        self.chapter_menu.pack()
         # settings_frame.pack()
         
         # settings_frame.
         # self.main_window.pack()
+        # self.chapter_verse_frame.pack_forget()
+        # self.manage_verses_button.pack_forget()
 
         self.load_from_file()
         self.main_window.mainloop()
+
+    
+    def set_bychapter(self):
+        # self.chapter_verse_frame.config.set
+        self.manage_verses_button.configure(state='disabled')
+        for child in self.chapter_verse_frame.winfo_children():
+            child.configure(state='enable')
+    
+    def set_custom(self):
+        self.manage_verses_button.configure(state='enable')
+        # self.chapter_verse_frame.pack_forget()
+        # self.manage_verses_button.pack()
+        for child in self.chapter_verse_frame.winfo_children():
+            child.configure(state='disabled')
+    
+    def book_change(self):
+        book = self.book_var.get()
+        # self.
 
     def errors_process(self):
         while True:
@@ -243,7 +283,12 @@ class BibVerseSettings:
                 self.settings_delay_slider.set(float(file_structure["per_word_time"]))
         except IOError:
             print('config file not found')
-
+    
+    def reload_chapters(self, *args):
+        nchapters = self.book_chapters[self.book_var.get()]
+        self.chapter_menu['menu'].delete(0, 'end')
+        for chapter in range(nchapters+1):
+            self.chapter_menu['menu'].add_command(label=str(chapter), command=tk._setit(self.chapter_var,str(chapter)))
         
 
 def get_passage_text(passage):
