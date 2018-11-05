@@ -143,6 +143,14 @@ class BibVerseSettings:
         self.load_from_file()
         self.main_window.mainloop()
 
+
+    def set_mode(self, mode):
+        if mode == 1:
+            self.set_bychapter()
+        elif mode == 2:
+            self.set_custom()
+        else:
+            raise Exception("This should not happen")
     
     def set_bychapter(self):
         # self.chapter_verse_frame.config.set
@@ -290,7 +298,7 @@ class BibVerseSettings:
         
 
     def save_to_file(self):
-        file_structure = { "custom_verses": self.custom_verses, "cycle_time": self.cycle_time_slider.get(), "per_word_time": self.settings_delay_slider.get() }
+        file_structure = { "custom_verses": self.custom_verses, "cycle_time": self.cycle_time_slider.get(), "per_word_time": self.settings_delay_slider.get(), "mode": self.mode_select_var.get() }
         with open("settings.json", "w") as f:
             json.dump(file_structure, f)
     
@@ -302,6 +310,9 @@ class BibVerseSettings:
                 self.custom_verses = file_structure["custom_verses"]
                 self.cycle_time_slider.set(int(file_structure["cycle_time"]))
                 self.settings_delay_slider.set(float(file_structure["per_word_time"]))
+                self.mode_select_var.set(int(file_structure["mode"]))
+                self.set_mode(self.mode_select_var.get())
+
         except IOError:
             print('config file not found')
     
