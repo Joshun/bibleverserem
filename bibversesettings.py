@@ -65,9 +65,10 @@ class BibVerseSettings:
 
         self.verse_entry = None
 
+        self.custom_verses = ""
         self.verses = ""
 
-        self.settings = { "verses": "" }
+        # self.settings = { "verses": "" }
 
         
         # label = ttk.Label(self.main_window, text=)
@@ -191,7 +192,7 @@ class BibVerseSettings:
 
     def show_verses_window(self):
         def save_verses():
-            self.verses = text.get("1.0", tk.END)
+            self.custom_verses = text.get("1.0", tk.END)
             print(self.verses)
             self.verses_window.destroy()
         def cancel():
@@ -209,8 +210,8 @@ class BibVerseSettings:
         text = tk.scrolledtext.Text(self.verses_window)
         text.grid(row=1, column=0, columnspan=2)
 
-        if len(self.verses) > 0:
-            text.insert("1.0", self.verses, tk.END)
+        if len(self.custom_verses) > 0:
+            text.insert("1.0", self.custom_verses, tk.END)
 
         confirm_button = ttk.Button(self.verses_window, text="Confirm", command=save_verses)
         confirm_button.grid(row=2, column=0)
@@ -237,6 +238,17 @@ class BibVerseSettings:
         return self.verses
 
     def launch(self):
+        mode = self.mode_select_var.get()
+        if mode == 1:
+            book = self.book_var.get()
+            chapter = self.chapter_var.get()
+            verses_list = [ "{} {}:{}".format(book, chapter, verse) for verse in self.indices.get_verses(book, chapter) ]
+            self.verses = "\n".join(verses_list)
+        elif mode == 2:
+            self.verses = self.custom_verses
+        else:
+            raise Exception("Should not happen")
+
         if len(self.verses.replace("\n", "")) == 0:
             tkinter.messagebox.showinfo("Setup verses", "You must add verses in the settings first")
             return
@@ -278,7 +290,7 @@ class BibVerseSettings:
         
 
     def save_to_file(self):
-        file_structure = { "verses": self.verses, "cycle_time": self.cycle_time_slider.get(), "per_word_time": self.settings_delay_slider.get() }
+        file_structure = { "custom_verses": self.custom_verses, "cycle_time": self.cycle_time_slider.get(), "per_word_time": self.settings_delay_slider.get() }
         with open("settings.json", "w") as f:
             json.dump(file_structure, f)
     
@@ -287,7 +299,7 @@ class BibVerseSettings:
             with open("settings.json", "r") as f:
                 file_structure = json.load(f)
                 print(file_structure)
-                self.verses = file_structure["verses"]
+                self.custom_verses = file_structure["custom_verses"]
                 self.cycle_time_slider.set(int(file_structure["cycle_time"]))
                 self.settings_delay_slider.set(float(file_structure["per_word_time"]))
         except IOError:
