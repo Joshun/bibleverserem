@@ -108,7 +108,10 @@ class BibVerseWorker(threading.Thread):
                     # self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
                     print(per_word_time)
                     print(per_word_time*len(split_passage))
-                    self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(split_passage)))
+
+                    progress_text = " ({}/{})".format(split+1,splits)
+
+                    self.bible_verse_display.display_verse(reference + progress_text, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(split_passage)))
                     
                     while self.bible_verse_display.active() and not self.thread_done:
                         sleep(0.01)
