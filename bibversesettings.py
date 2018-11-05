@@ -106,10 +106,12 @@ class BibVerseSettings:
 
         self.mode_select_var = tk.IntVar(None, 1)
 
-        mode_select_radio_by_chapter = ttk.Radiobutton(self.mode_select_frame, text="By chapter", variable=self.mode_select_var, value=1, command=self.set_bychapter)
+        mode_select_radio_by_book = ttk.Radiobutton(self.mode_select_frame, text="By book", variable=self.mode_select_var, value=1, command=self.set_bychapter)
+        mode_select_radio_by_book.pack(side=tk.LEFT)        
+        mode_select_radio_by_chapter = ttk.Radiobutton(self.mode_select_frame, text="By chapter", variable=self.mode_select_var, value=2, command=self.set_bychapter)
         mode_select_radio_by_chapter.pack(side=tk.LEFT)
-        mode_select_custom = ttk.Radiobutton(self.mode_select_frame, text="Custom", variable=self.mode_select_var, value=2, command=self.set_custom)
-        mode_select_custom.pack()
+        mode_select_custom = ttk.Radiobutton(self.mode_select_frame, text="Custom", variable=self.mode_select_var, value=3, command=self.set_custom)
+        mode_select_custom.pack(side=tk.LEFT)
 
         self.manage_verses_button = ttk.Button(self.settings_frame, text="Verses...", command=self.show_verses_window)
         # self.manage_verses_button.grid(row=3, column=0, columnspan=2)
@@ -117,7 +119,7 @@ class BibVerseSettings:
 
 
         self.chapter_verse_frame = tk.Frame(self.settings_frame)
-        self.chapter_verse_frame.grid(row=4, column=0, columnspan=2)
+        # self.chapter_verse_frame.grid(row=4, column=0, columnspan=2)
 
         self.book_var = tk.StringVar()
         # options = ["Genesis", "Exodus"]
@@ -135,6 +137,10 @@ class BibVerseSettings:
         self.chapter_menu.pack()
         # settings_frame.pack()
         
+        self.book_frame = tk.Frame(self.settings_frame)
+        self.book_menu = ttk.OptionMenu(self.book_frame, self.book_var, options[0], *options)
+        self.book_menu.pack()
+
         # settings_frame.
         # self.main_window.pack()
         # self.chapter_verse_frame.pack_forget()
@@ -146,15 +152,23 @@ class BibVerseSettings:
 
     def set_mode(self, mode):
         if mode == 1:
-            self.set_bychapter()
+            self.set_bybook()
         elif mode == 2:
+            self.set_bybook()
+        elif mode == 3:
             self.set_custom()
         else:
             raise Exception("This should not happen")
     
+    def set_bybook(self):
+        self.chapter_verse_frame.grid_forget()
+        self.manage_verses_button.grid_forget()
+        self.book_frame.grid(row=3, column=0, columnspan=2)
+
     def set_bychapter(self):
         # self.chapter_verse_frame.config.set
         self.manage_verses_button.grid_forget()
+        self.book_frame.grid_forget()
         self.chapter_verse_frame.grid(row=3, column=0, columnspan=2)
 
         # self.manage_verses_button.configure(state='disabled')
@@ -162,6 +176,7 @@ class BibVerseSettings:
         #     child.configure(state='enable')
     
     def set_custom(self):
+        self.book_frame.grid_forget()
         self.chapter_verse_frame.grid_forget()        
         self.manage_verses_button.grid(row=3, column=0, columnspan=2)
         # self.manage_verses_button.configure(state='enable')
@@ -249,10 +264,14 @@ class BibVerseSettings:
         mode = self.mode_select_var.get()
         if mode == 1:
             book = self.book_var.get()
+            verses_list = [ "{} {}".format(book, chapter) for chapter in self.indices.get_chapters(book) ]
+            self.verses = "\n".join(verses_list)
+        elif mode == 2:
+            book = self.book_var.get()
             chapter = self.chapter_var.get()
             verses_list = [ "{} {}:{}".format(book, chapter, verse) for verse in self.indices.get_verses(book, chapter) ]
             self.verses = "\n".join(verses_list)
-        elif mode == 2:
+        elif mode == 3:
             self.verses = self.custom_verses
         else:
             raise Exception("Should not happen")
