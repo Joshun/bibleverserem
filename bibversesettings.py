@@ -288,6 +288,8 @@ class BibVerseSettings:
         self.chapter_menu['menu'].delete(0, 'end')
         for chapter in range(nchapters+1):
             self.chapter_menu['menu'].add_command(label=str(chapter), command=tk._setit(self.chapter_var,str(chapter)))
+        # set back to first chapter to avoid it being set to non-existent chapters
+        self.chapter_var.set(1)
         
 
 def get_passage_text(passage):
