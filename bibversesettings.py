@@ -24,8 +24,12 @@ from queue import Queue, Empty
 import json
 import bibverseworker
 
+from bibindices import Indices
+
 class BibVerseSettings:
     def __init__(self):
+        self.indices = Indices()
+
 
         self.thread_done = False
         self.started = False
@@ -115,16 +119,17 @@ class BibVerseSettings:
         self.chapter_verse_frame.grid(row=4, column=0, columnspan=2)
 
         self.book_var = tk.StringVar()
-        options = ["Genesis", "Exodus"]
-        self.book_chapters = {"Genesis": 50, "Exodus": 40}
-        self.book_var.set(options[0])
+        # options = ["Genesis", "Exodus"]
+        options = self.indices.get_books()
+        # self.book_chapters = {"Genesis": 50, "Exodus": 40}
+        self.book_var.set(self.indices.get_books()[0])
         book_menu = ttk.OptionMenu(self.chapter_verse_frame, self.book_var, options[0], *options)
         book_menu.pack(side=tk.LEFT)
 
         self.book_var.trace("w", self.reload_chapters)
 
         self.chapter_var = tk.IntVar()
-        chapters = range(1,51)
+        chapters = self.indices.get_chapters(self.book_var.get())
         self.chapter_menu = ttk.OptionMenu(self.chapter_verse_frame, self.chapter_var, chapters[0], *chapters)
         self.chapter_menu.pack()
         # settings_frame.pack()
@@ -289,9 +294,10 @@ class BibVerseSettings:
             print('config file not found')
     
     def reload_chapters(self, *args):
-        nchapters = self.book_chapters[self.book_var.get()]
+        # nchapters = self.book_chapters[self.book_var.get()]
+        chapters = self.indices.get_chapters(self.book_var.get())
         self.chapter_menu['menu'].delete(0, 'end')
-        for chapter in range(nchapters+1):
+        for chapter in chapters:
             self.chapter_menu['menu'].add_command(label=str(chapter), command=tk._setit(self.chapter_var,str(chapter)))
         # set back to first chapter to avoid it being set to non-existent chapters
         self.chapter_var.set(1)
