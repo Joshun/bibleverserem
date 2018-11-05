@@ -107,8 +107,8 @@ class BibVerseSettings:
         mode_select_custom.pack()
 
         self.manage_verses_button = ttk.Button(self.settings_frame, text="Verses...", command=self.show_verses_window)
-        self.manage_verses_button.grid(row=3, column=0, columnspan=2)
-        self.manage_verses_button.configure(state='disabled')
+        # self.manage_verses_button.grid(row=3, column=0, columnspan=2)
+        # self.manage_verses_button.configure(state='disabled')
 
 
         self.chapter_verse_frame = tk.Frame(self.settings_frame)
@@ -140,16 +140,21 @@ class BibVerseSettings:
     
     def set_bychapter(self):
         # self.chapter_verse_frame.config.set
-        self.manage_verses_button.configure(state='disabled')
-        for child in self.chapter_verse_frame.winfo_children():
-            child.configure(state='enable')
+        self.manage_verses_button.grid_forget()
+        self.chapter_verse_frame.grid(row=3, column=0, columnspan=2)
+
+        # self.manage_verses_button.configure(state='disabled')
+        # for child in self.chapter_verse_frame.winfo_children():
+        #     child.configure(state='enable')
     
     def set_custom(self):
-        self.manage_verses_button.configure(state='enable')
-        # self.chapter_verse_frame.pack_forget()
-        # self.manage_verses_button.pack()
-        for child in self.chapter_verse_frame.winfo_children():
-            child.configure(state='disabled')
+        self.chapter_verse_frame.grid_forget()        
+        self.manage_verses_button.grid(row=3, column=0, columnspan=2)
+        # self.manage_verses_button.configure(state='enable')
+        # # self.chapter_verse_frame.pack_forget()
+        # # self.manage_verses_button.pack()
+        # for child in self.chapter_verse_frame.winfo_children():
+        #     child.configure(state='disabled')
     
     def book_change(self):
         book = self.book_var.get()
