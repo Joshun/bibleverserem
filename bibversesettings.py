@@ -106,7 +106,7 @@ class BibVerseSettings:
 
         self.mode_select_var = tk.IntVar(None, 1)
 
-        mode_select_radio_by_book = ttk.Radiobutton(self.mode_select_frame, text="By book", variable=self.mode_select_var, value=1, command=self.set_bychapter)
+        mode_select_radio_by_book = ttk.Radiobutton(self.mode_select_frame, text="By book", variable=self.mode_select_var, value=1, command=self.set_bybook)
         mode_select_radio_by_book.pack(side=tk.LEFT)        
         mode_select_radio_by_chapter = ttk.Radiobutton(self.mode_select_frame, text="By chapter", variable=self.mode_select_var, value=2, command=self.set_bychapter)
         mode_select_radio_by_chapter.pack(side=tk.LEFT)
@@ -154,7 +154,7 @@ class BibVerseSettings:
         if mode == 1:
             self.set_bybook()
         elif mode == 2:
-            self.set_bybook()
+            self.set_bychapter()
         elif mode == 3:
             self.set_custom()
         else:

@@ -9,6 +9,7 @@ from time import sleep
 import config
 from auth import auth_token
 from onlineesvapi import OnlineEsvApi
+from swordapi import SwordApi
 
 class BibVerseWorker(threading.Thread):
     def __init__(self):
@@ -34,6 +35,7 @@ class BibVerseWorker(threading.Thread):
         self.errors_queue = None
 
         self.api = OnlineEsvApi()
+        # self.api = SwordApi()
     
     def set_errors_queue(self, queue):
         self.errors_queue = queue
