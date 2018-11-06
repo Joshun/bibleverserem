@@ -34,8 +34,8 @@ class BibVerseWorker(threading.Thread):
 
         self.errors_queue = None
 
-        self.api = OnlineEsvApi()
-        # self.api = SwordApi()
+        # self.api = OnlineEsvApi()
+        self.api = SwordApi()
     
     def set_errors_queue(self, queue):
         self.errors_queue = queue
@@ -83,19 +83,25 @@ class BibVerseWorker(threading.Thread):
         
 
         while not self.thread_done:
-
+            print(passages)
             for passage in passages:
-                print("passage " + passage)
+                if passage == "":
+                    continue
+
+
                 # code here
-                r = self.api.get_passage(passage)
-                passage_text = r.json()['passages'][0]
+                # r = self.api.get_passage(passage)
+                # passage_text = r.json()['passages'][0]
+                # passage_text = self.api.get_passage(passage)
 
                 #toaster.show_toast('bibverserem', r.json()['passages'][0], duration=10)
-                print(passage_text)
-                reference_loc = passage_text.find("\n")
-                reference = passage_text[:reference_loc]
-                verses = passage_text[reference_loc:]
-                verses = verses.replace("\n", " ")
+                # print(passage_text)
+                # reference_loc = passage_text.find("\n")
+                # reference = passage_text[:reference_loc]
+                # verses = passage_text[reference_loc:]
+                # verses = verses.replace("\n", " ")
+
+                reference, verses = self.api.get_passage(passage)
 
                 # reference, verses = passage_text.split('\n\n')
                 print(verses)

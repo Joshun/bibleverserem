@@ -10,4 +10,12 @@ class OnlineEsvApi(BibVerseApi):
             params={'include-verse-numbers': 'false', 'include-headings': 'false', 'include-footnotes': 'false', 'indent-poetry': 'false'},
             headers={'Authorization': 'Token {}'.format(auth_token)}
             )
-        return r
+        # return r
+        passage_text =  r.json()['passages'][0]
+
+        reference_loc = passage_text.find("\n")
+        reference = passage_text[:reference_loc]
+        verses = passage_text[reference_loc:]
+        verses = verses.replace("\n", " ")
+
+        return reference, verses

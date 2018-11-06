@@ -35,6 +35,7 @@ class SwordApi(BibVerseApi):
         
 
     def _convert_passage_reference(self, passage):
+
         full_ref_regex = "([0-9 ]*[a-zA-Z]+) ([0-9]+):([0-9]+)"
         book_regex = "([0-9 ]*[a-zA-Z]+)"
         chapter_regex = "([0-9 ]*[a-zA-Z]+) ([0-9]+)"
@@ -47,25 +48,26 @@ class SwordApi(BibVerseApi):
                 matches = re.findall(book_regex, passage)
 
                 if len(matches) == 0:
+
                     raise Exception("Invalid ref " + str(passage))
 
         return matches[0]
     
 
     def get_passage(self, passage):
-        passage = ""
         parsed_reference = self._convert_passage_reference(passage)
+        passage_text = ""
         if len(parsed_reference) == 3:
             book, chapter, verse = parsed_reference
-            passage = self.bible.get(books=[book], chapters=[chapter], verse=[verse])
+            passage_text = self.bible.get(books=[book], chapters=[int(chapter)], verse=[int(verse)])
         elif len(parsed_reference) == 2:
             book, chapter = parsed_reference
-            passage = self.bible.get(books=[book], chapters=[chapter])            
+            passage_text = self.bible.get(books=[book], chapters=[int(chapter)])            
         else:
             book = parsed_reference
-            passage = self.bible.get(books=[book])                      
+            passage_text = self.bible.get(books=[book])                      
         
-        return passage
+        return passage, passage_text
 
 api = SwordApi()
-print(api._convert_passage_reference("1 John 5"))
+# print(api._convert_passage_reference("Genesis 1"))
