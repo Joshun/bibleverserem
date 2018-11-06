@@ -62,7 +62,7 @@ class SwordApi(BibVerseApi):
         passage_text = ""
         if len(parsed_reference) == 3:
             book, chapter, verse = parsed_reference
-            passage_text = self.bible.get(books=[book], chapters=[int(chapter)], verse=[int(verse)])
+            passage_text = self.bible.get(books=[book], chapters=[int(chapter)], verses=[int(verse)])
         elif len(parsed_reference) == 2:
             book, chapter = parsed_reference
             passage_text = self.bible.get(books=[book], chapters=[int(chapter)])            
