@@ -141,6 +141,9 @@ class BibVerseSettings:
         self.book_frame = tk.Frame(self.settings_frame)
         self.book_menu = ttk.OptionMenu(self.book_frame, self.book_var, options[0], *options)
         self.book_menu.pack()
+        
+        self.book_frame.grid(row=3, column=0, columnspan=2)
+
 
         # settings_frame.
         # self.main_window.pack()
