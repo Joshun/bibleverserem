@@ -70,6 +70,10 @@ class SwordApi(BibVerseApi):
             book = parsed_reference
             passage_text = self.bible.get(books=[book])                      
         
+        passage_text = passage_text.replace("\n", " ")
+        passage_text = passage_text.replace("\r", " ")
+        passage_text = passage_text.replace("  ", " ")
+
         return passage, passage_text
     
     def get_zipfile(self):
