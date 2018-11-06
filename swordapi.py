@@ -72,7 +72,8 @@ class SwordApi(BibVerseApi):
         
         passage_text = passage_text.replace("\n", " ")
         passage_text = passage_text.replace("\r", " ")
-        passage_text = passage_text.replace("  ", " ")
+        # get rid of excess spaces
+        passage_text = re.sub(" [ ]+", " ", passage_text)
 
         return passage, passage_text
     

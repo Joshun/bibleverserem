@@ -1,4 +1,5 @@
 import requests
+import re
 from bibverseapi import BibVerseApi
 from auth import auth_token
 
@@ -17,5 +18,10 @@ class OnlineEsvApi(BibVerseApi):
         reference = passage_text[:reference_loc]
         verses = passage_text[reference_loc:]
         verses = verses.replace("\n", " ")
+        verses = verses.replace("\r", " ")
+
+        # get rid of excess spaces
+        verses = re.sub(" [ ]+", " ", verses)
+
 
         return reference, verses
