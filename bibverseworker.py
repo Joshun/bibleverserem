@@ -48,12 +48,12 @@ class BibVerseWorker(threading.Thread):
             self.api = SwordApi()
             zipfile = self.api.get_zipfile()
             if use_notifications:
-                self.bible_verse_display.display_verse("Offline bible found", zipfile, 5)
+                self.bible_verse_display.display_verse("Offline bible found", zipfile, 3)
             
         except NoOfflineBibleException:
             self.api = OnlineEsvApi()
             if use_notifications:
-                self.bible_verse_display.display_verse("No offline bibles found", "Using online ESV bible", 5)
+                self.bible_verse_display.display_verse("No offline bibles found", "Using online ESV bible", 3)
     
     def set_errors_queue(self, queue):
         self.errors_queue = queue
