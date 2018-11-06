@@ -8,6 +8,7 @@ from time import sleep
 
 import config
 from auth import auth_token
+from onlineesvapi import OnlineEsvApi
 
 class BibVerseWorker(threading.Thread):
     def __init__(self):
@@ -31,6 +32,8 @@ class BibVerseWorker(threading.Thread):
         self.closing = False
 
         self.errors_queue = None
+
+        self.api = OnlineEsvApi()
     
     def set_errors_queue(self, queue):
         self.errors_queue = queue
@@ -82,7 +85,7 @@ class BibVerseWorker(threading.Thread):
             for passage in passages:
                 print("passage " + passage)
                 # code here
-                r = get_passage_text(passage)
+                r = self.api.get_passage(passage)
                 passage_text = r.json()['passages'][0]
 
                 #toaster.show_toast('bibverserem', r.json()['passages'][0], duration=10)
@@ -108,7 +111,10 @@ class BibVerseWorker(threading.Thread):
                     # self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + 0.1*len(passage_text_words)))
                     print(per_word_time)
                     print(per_word_time*len(split_passage))
-                    self.bible_verse_display.display_verse(reference, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(split_passage)))
+
+                    progress_text = " ({}/{})".format(split+1,splits)
+
+                    self.bible_verse_display.display_verse(reference + progress_text, " ".join(split_passage), math.ceil(2 + float(per_word_time)*len(split_passage)))
                     
                     while self.bible_verse_display.active() and not self.thread_done:
                         sleep(0.01)
@@ -143,12 +149,3 @@ class BibVerseWorker(threading.Thread):
 
 
 
-
-def get_passage_text(passage):
-    encoded_passage = passage.replace(" ", "+")
-    r = requests.get(
-        'https://api.esv.org/v3/passage/text/?q={0}'.format(encoded_passage),
-        params={'include-verse-numbers': 'false', 'include-headings': 'false', 'include-footnotes': 'false', 'indent-poetry': 'false'},
-        headers={'Authorization': 'Token {}'.format(auth_token)}
-        )
-    return r

@@ -24,8 +24,12 @@ from queue import Queue, Empty
 import json
 import bibverseworker
 
+from bibindices import Indices
+
 class BibVerseSettings:
     def __init__(self):
+        self.indices = Indices()
+
 
         self.thread_done = False
         self.started = False
@@ -61,9 +65,10 @@ class BibVerseSettings:
 
         self.verse_entry = None
 
+        self.custom_verses = ""
         self.verses = ""
 
-        self.settings = { "verses": "" }
+        # self.settings = { "verses": "" }
 
         
         # label = ttk.Label(self.main_window, text=)
@@ -96,15 +101,93 @@ class BibVerseSettings:
         self.settings_delay_slider = tk.Scale(self.settings_frame, from_=0.1, to=1, orient=tk.HORIZONTAL, resolution=0.1)
         self.settings_delay_slider.grid(row=1, column=1)
 
-        manage_verses_button = ttk.Button(self.settings_frame, text="Verses...", command=self.show_verses_window)
-        manage_verses_button.grid(row=2, column=0, columnspan=2)
+        self.mode_select_frame = tk.Frame(self.settings_frame)
+        self.mode_select_frame.grid(row=2, column=0, columnspan=2)
+
+        self.mode_select_var = tk.IntVar(None, 1)
+
+        mode_select_radio_by_book = ttk.Radiobutton(self.mode_select_frame, text="By book", variable=self.mode_select_var, value=1, command=self.set_bychapter)
+        mode_select_radio_by_book.pack(side=tk.LEFT)        
+        mode_select_radio_by_chapter = ttk.Radiobutton(self.mode_select_frame, text="By chapter", variable=self.mode_select_var, value=2, command=self.set_bychapter)
+        mode_select_radio_by_chapter.pack(side=tk.LEFT)
+        mode_select_custom = ttk.Radiobutton(self.mode_select_frame, text="Custom", variable=self.mode_select_var, value=3, command=self.set_custom)
+        mode_select_custom.pack(side=tk.LEFT)
+
+        self.manage_verses_button = ttk.Button(self.settings_frame, text="Verses...", command=self.show_verses_window)
+        # self.manage_verses_button.grid(row=3, column=0, columnspan=2)
+        # self.manage_verses_button.configure(state='disabled')
+
+
+        self.chapter_verse_frame = tk.Frame(self.settings_frame)
+        # self.chapter_verse_frame.grid(row=4, column=0, columnspan=2)
+
+        self.book_var = tk.StringVar()
+        # options = ["Genesis", "Exodus"]
+        options = self.indices.get_books()
+        # self.book_chapters = {"Genesis": 50, "Exodus": 40}
+        self.book_var.set(self.indices.get_books()[0])
+        book_menu = ttk.OptionMenu(self.chapter_verse_frame, self.book_var, options[0], *options)
+        book_menu.pack(side=tk.LEFT)
+
+        self.book_var.trace("w", self.reload_chapters)
+
+        self.chapter_var = tk.IntVar()
+        chapters = self.indices.get_chapters(self.book_var.get())
+        self.chapter_menu = ttk.OptionMenu(self.chapter_verse_frame, self.chapter_var, chapters[0], *chapters)
+        self.chapter_menu.pack()
         # settings_frame.pack()
         
+        self.book_frame = tk.Frame(self.settings_frame)
+        self.book_menu = ttk.OptionMenu(self.book_frame, self.book_var, options[0], *options)
+        self.book_menu.pack()
+
         # settings_frame.
         # self.main_window.pack()
+        # self.chapter_verse_frame.pack_forget()
+        # self.manage_verses_button.pack_forget()
 
         self.load_from_file()
         self.main_window.mainloop()
+
+
+    def set_mode(self, mode):
+        if mode == 1:
+            self.set_bybook()
+        elif mode == 2:
+            self.set_bybook()
+        elif mode == 3:
+            self.set_custom()
+        else:
+            raise Exception("This should not happen")
+    
+    def set_bybook(self):
+        self.chapter_verse_frame.grid_forget()
+        self.manage_verses_button.grid_forget()
+        self.book_frame.grid(row=3, column=0, columnspan=2)
+
+    def set_bychapter(self):
+        # self.chapter_verse_frame.config.set
+        self.manage_verses_button.grid_forget()
+        self.book_frame.grid_forget()
+        self.chapter_verse_frame.grid(row=3, column=0, columnspan=2)
+
+        # self.manage_verses_button.configure(state='disabled')
+        # for child in self.chapter_verse_frame.winfo_children():
+        #     child.configure(state='enable')
+    
+    def set_custom(self):
+        self.book_frame.grid_forget()
+        self.chapter_verse_frame.grid_forget()        
+        self.manage_verses_button.grid(row=3, column=0, columnspan=2)
+        # self.manage_verses_button.configure(state='enable')
+        # # self.chapter_verse_frame.pack_forget()
+        # # self.manage_verses_button.pack()
+        # for child in self.chapter_verse_frame.winfo_children():
+        #     child.configure(state='disabled')
+    
+    def book_change(self):
+        book = self.book_var.get()
+        # self.
 
     def errors_process(self):
         while True:
@@ -132,7 +215,7 @@ class BibVerseSettings:
 
     def show_verses_window(self):
         def save_verses():
-            self.verses = text.get("1.0", tk.END)
+            self.custom_verses = text.get("1.0", tk.END)
             print(self.verses)
             self.verses_window.destroy()
         def cancel():
@@ -150,8 +233,8 @@ class BibVerseSettings:
         text = tk.scrolledtext.Text(self.verses_window)
         text.grid(row=1, column=0, columnspan=2)
 
-        if len(self.verses) > 0:
-            text.insert("1.0", self.verses, tk.END)
+        if len(self.custom_verses) > 0:
+            text.insert("1.0", self.custom_verses, tk.END)
 
         confirm_button = ttk.Button(self.verses_window, text="Confirm", command=save_verses)
         confirm_button.grid(row=2, column=0)
@@ -178,6 +261,21 @@ class BibVerseSettings:
         return self.verses
 
     def launch(self):
+        mode = self.mode_select_var.get()
+        if mode == 1:
+            book = self.book_var.get()
+            verses_list = [ "{} {}".format(book, chapter) for chapter in self.indices.get_chapters(book) ]
+            self.verses = "\n".join(verses_list)
+        elif mode == 2:
+            book = self.book_var.get()
+            chapter = self.chapter_var.get()
+            verses_list = [ "{} {}:{}".format(book, chapter, verse) for verse in self.indices.get_verses(book, chapter) ]
+            self.verses = "\n".join(verses_list)
+        elif mode == 3:
+            self.verses = self.custom_verses
+        else:
+            raise Exception("Should not happen")
+
         if len(self.verses.replace("\n", "")) == 0:
             tkinter.messagebox.showinfo("Setup verses", "You must add verses in the settings first")
             return
@@ -219,7 +317,7 @@ class BibVerseSettings:
         
 
     def save_to_file(self):
-        file_structure = { "verses": self.verses, "cycle_time": self.cycle_time_slider.get(), "per_word_time": self.settings_delay_slider.get() }
+        file_structure = { "custom_verses": self.custom_verses, "cycle_time": self.cycle_time_slider.get(), "per_word_time": self.settings_delay_slider.get(), "mode": self.mode_select_var.get() }
         with open("settings.json", "w") as f:
             json.dump(file_structure, f)
     
@@ -228,12 +326,23 @@ class BibVerseSettings:
             with open("settings.json", "r") as f:
                 file_structure = json.load(f)
                 print(file_structure)
-                self.verses = file_structure["verses"]
+                self.custom_verses = file_structure["custom_verses"]
                 self.cycle_time_slider.set(int(file_structure["cycle_time"]))
                 self.settings_delay_slider.set(float(file_structure["per_word_time"]))
+                self.mode_select_var.set(int(file_structure["mode"]))
+                self.set_mode(self.mode_select_var.get())
+
         except IOError:
             print('config file not found')
-
+    
+    def reload_chapters(self, *args):
+        # nchapters = self.book_chapters[self.book_var.get()]
+        chapters = self.indices.get_chapters(self.book_var.get())
+        self.chapter_menu['menu'].delete(0, 'end')
+        for chapter in chapters:
+            self.chapter_menu['menu'].add_command(label=str(chapter), command=tk._setit(self.chapter_var,str(chapter)))
+        # set back to first chapter to avoid it being set to non-existent chapters
+        self.chapter_var.set(1)
         
 
 def get_passage_text(passage):
