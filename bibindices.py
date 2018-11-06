@@ -7,6 +7,7 @@ class Indices:
         self.indices = {}
         self.total_books = 0
         self.total_chapters = 0
+        self.total_verses = 0
 
 
         with open(datafile, "r") as f:
@@ -16,7 +17,7 @@ class Indices:
                 verse = int(verse)
                 self._add_entry(book, chapter, verse)
 
-        print('Loaded indices ({} books, {} chapters)'.format(self.total_books, self.total_chapters))
+        print('Loaded indices ({} books, {} chapters, {} verses)'.format(self.total_books, self.total_chapters, self.total_verses))
 
     
     def _add_entry(self, book, chapter, verse):
@@ -31,6 +32,7 @@ class Indices:
             self.total_chapters += 1
         else:
             self.indices[book][chapter].append(verse)
+        self.total_verses += 1
 
     def get_books(self):
         return list(self.indices.keys())

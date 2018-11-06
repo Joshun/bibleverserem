@@ -1,0 +1,3 @@
+
+class NoOfflineBibleException(Exception):
+    pass

@@ -59,6 +59,7 @@ class BibVerseSettings:
         self.worker_thread.set_errors_queue(self.errors_queue)
 
         self.main_window = tk.Tk()
+        self.main_window.title("Bible Verse Reminder")
 
         self.settings_open = False
         self.verses_window_open = False
@@ -191,18 +192,26 @@ class BibVerseSettings:
 
     def errors_process(self):
         while True:
-            err = self.errors_queue.get()
-            print("Error:")
-            print(err)
-            tkinter.messagebox.showerror("Error", err)
-            self.stop()
-            
-            while not self.errors_queue.empty():
-                try:
-                    self.errors_queue.get(False)
-                except Empty:
-                    continue
-                self.errors_queue.task_done()
+            msgtype, msg = self.errors_queue.get()
+            # print("Error:")
+            # print(err)
+            print("Type: " + str(msgtype))
+            print("Message: " + str(msg))
+
+            if msgtype == "info":
+                tkinter.messagebox.showinfo("Information", msg)
+            elif msgtype == "error":
+                tkinter.messagebox.showerror("Error", msg)
+                self.stop()
+                
+                while not self.errors_queue.empty():
+                    try:
+                        self.errors_queue.get(False)
+                    except Empty:
+                        continue
+                    self.errors_queue.task_done()
+            else:
+                raise Exception()
         
     def toggle_settings(self):
         # self.settings_window = tk.Toplevel(master=self.main_window)

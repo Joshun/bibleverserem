@@ -11,6 +11,10 @@ from auth import auth_token
 from onlineesvapi import OnlineEsvApi
 from swordapi import SwordApi
 
+import tkinter.messagebox
+
+from exceptions import *
+
 class BibVerseWorker(threading.Thread):
     def __init__(self):
         # super().__init__()
@@ -35,14 +39,32 @@ class BibVerseWorker(threading.Thread):
         self.errors_queue = None
 
         # self.api = OnlineEsvApi()
-        self.api = SwordApi()
+        self.api = None
+        self._autoselect_api()
+    
+    def _autoselect_api(self):
+        use_notifications = config.settings["bible_verse_notifications"]
+        try:
+            self.api = SwordApi()
+            zipfile = self.api.get_zipfile()
+            if use_notifications:
+                self.bible_verse_display.display_verse("Offline bible found", zipfile, 5)
+            
+        except NoOfflineBibleException:
+            self.api = OnlineEsvApi()
+            if use_notifications:
+                self.bible_verse_display.display_verse("No offline bibles found", "Using online ESV bible", 5)
     
     def set_errors_queue(self, queue):
         self.errors_queue = queue
     
     def write_error(self, err):
         if self.errors_queue is not None:
-            self.errors_queue.put(err)
+            self.errors_queue.put(("error", err))
+    
+    def write_info(self, info):
+        if self.errors_queue is not None:
+            self.errors_queue.put(("info", info))
 
     def set_options(self, *, cycle_time, per_word_time, verses):
         self.cycle_time = cycle_time
@@ -129,8 +151,6 @@ class BibVerseWorker(threading.Thread):
                     if self.thread_done:
                         break
 
-                # sleep(int(config.settings["cycle_time"]) * 60)
-                # sleep(int(cycle_time) * 60)
 
                 start_d = datetime.datetime.now()
                 while not self.thread_done:

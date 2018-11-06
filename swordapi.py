@@ -7,6 +7,8 @@ from pysword.modules import SwordModules
 
 from bibverseapi import BibVerseApi
 
+from exceptions import *
+
 class SwordApi(BibVerseApi):
     def __init__(self):
         # loads first available bible in current directory
@@ -26,10 +28,11 @@ class SwordApi(BibVerseApi):
             else:
                 module_key_choice = found_module_keys[0]
                 self.bible = modules.get_bible_from_module(module_key_choice)
+                self.zipfile = zipfile
                 print("Loaded bible from " + str(zipfile))
         
         if self.bible is None:
-            raise Exception("No bibles found")
+            raise NoOfflineBibleException("No bibles found")
 
         self.bible = modules.get_bible_from_module(module_key_choice)
         
@@ -68,6 +71,7 @@ class SwordApi(BibVerseApi):
             passage_text = self.bible.get(books=[book])                      
         
         return passage, passage_text
+    
+    def get_zipfile(self):
+        return self.zipfile
 
-api = SwordApi()
-# print(api._convert_passage_reference("Genesis 1"))
