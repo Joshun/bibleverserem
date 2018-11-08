@@ -1,6 +1,12 @@
 # bibleverserem
 
 ## Simple bible verse reminder application
-Displays a selection of bible verses, at a time interval specified for the user
-Uses the ESV API for getting verse text
-A settings GUI and cross-platform support (i.e. Linux) will be implemented at a later date
+
+* Displays a selection of bible verses, at a time interval specified for the user
+* Uses either the online ESV API or offline [Sword modules](http://www.crosswire.org/sword/modules/) for getting verse text
+
+## Screenshots
+### Settings window
+![Settings window image](screenshots/scn1.png)
+### Verse notification
+![Verse notification image](screenshots/scn2.png)
