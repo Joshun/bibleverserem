@@ -5,6 +5,7 @@ class Indices:
 
     def __init__(self, datafile="bibletaxonomy.csv"):
         self.indices = {}
+        self.book_names = []
         self.total_books = 0
         self.total_chapters = 0
         self.total_verses = 0
@@ -26,6 +27,7 @@ class Indices:
         if book not in self.indices:
             self.indices[book] = {}
             self.total_books += 1
+            self.book_names.append(book)
 
         if chapter not in self.indices[book]:
             self.indices[book][chapter] = [verse]
@@ -40,6 +42,8 @@ class Indices:
         return list(self.indices[book].keys())
     def get_verses(self, book, chapter):
         return self.indices[book][chapter]
+    def get_book_name_index(self, book_name):
+        return self.book_names.index(book_name)
     
 
 if __name__ == '__main__':

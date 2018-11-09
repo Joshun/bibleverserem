@@ -20,6 +20,7 @@ class BibVerseWorker(threading.Thread):
         # super().__init__()
         threading.Thread.__init__(self)
 
+
         if platform.system() == 'Windows':
             import winbibversedisplay
             self.bible_verse_display = winbibversedisplay.WinBibleVerseDisplay()
@@ -40,12 +41,17 @@ class BibVerseWorker(threading.Thread):
 
         # self.api = OnlineEsvApi()
         self.api = None
-        self._autoselect_api()
+
+        self.indices = None
+
+        self.indices_set = False
+        self.init_ran = False
     
     def _autoselect_api(self):
         use_notifications = config.settings["bible_verse_notifications"]
         try:
-            self.api = SwordApi()
+            # TODO: this should only be loaded once
+            self.api = SwordApi(self.indices)
             zipfile = self.api.get_zipfile()
             if use_notifications:
                 self.bible_verse_display.display_verse("Offline bible found", zipfile, 3)
@@ -71,6 +77,18 @@ class BibVerseWorker(threading.Thread):
         self.per_word_time = per_word_time
         self.verses = verses
     
+    def set_indices(self, indices):
+        self.indices = indices
+        self.indices_set = True
+
+    
+    def init(self):
+        if not self.indices_set:
+            raise Exception("Must call set_indices first")
+        self._autoselect_api()
+
+        self.init_ran = True
+    
     def set_done(self):
         self.thread_done = True
 
@@ -81,6 +99,8 @@ class BibVerseWorker(threading.Thread):
         self.thread_done = False
     
     def run(self):
+        if not self.init_ran:
+            raise Exception("Must call init first")
         while True:
             try:
                 self.run_worker()

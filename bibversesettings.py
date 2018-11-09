@@ -57,6 +57,9 @@ class BibVerseSettings:
         self.worker_thread = bibverseworker.BibVerseWorker()
         self.worker_thread.setDaemon(True)
         self.worker_thread.set_errors_queue(self.errors_queue)
+        self.worker_thread.set_indices(self.indices)
+        self.worker_thread.init()
+
 
         self.main_window = tk.Tk()
         self.main_window.title("Bible Verse Reminder")

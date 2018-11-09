@@ -10,10 +10,11 @@ from bibverseapi import BibVerseApi
 from exceptions import *
 
 class SwordApi(BibVerseApi):
-    def __init__(self):
+    def __init__(self, indices):
         # loads first available bible in current directory
         # TODO: give user choice
 
+        self.indices = indices
         self.bible = None
         zips = glob.glob("*.zip")
 
@@ -57,18 +58,40 @@ class SwordApi(BibVerseApi):
         return matches[0]
     
 
+    def _map_book_name(self, book_name):
+        # this maps a user selected book name to the name of the module:
+        #   1. get all the book names from the module in an ordered list
+        #   2. look up the user selected book name in Indices to get an index for the book
+        #   3. look up the corresponding module name from the ordered list of module book names
+        # this is a bit of a hack, there must be a better way to do this
+        # it will only work for standard canonical bibles
+        books_dict = self.bible.get_structure().get_books()
+        ot_books = [b.name for b in books_dict["ot"]]
+        nt_books = [b.name for b in books_dict["nt"]]
+        
+        module_book_names = ot_books + nt_books
+        if len(module_book_names) != 66:
+            raise HereticalBibleTranslationException("due to indexing limitations, only canonical bibles are supported")
+        
+
+        book_index = self.indices.get_book_name_index(book_name)
+        resolved_moudle_book_name = module_book_names[book_index]
+
+        return resolved_moudle_book_name
+
+
     def get_passage(self, passage):
         parsed_reference = self._convert_passage_reference(passage)
         passage_text = ""
         if len(parsed_reference) == 3:
             book, chapter, verse = parsed_reference
-            passage_text = self.bible.get(books=[book], chapters=[int(chapter)], verses=[int(verse)])
+            passage_text = self.bible.get(books=[self._map_book_name(book)], chapters=[int(chapter)], verses=[int(verse)])
         elif len(parsed_reference) == 2:
             book, chapter = parsed_reference
-            passage_text = self.bible.get(books=[book], chapters=[int(chapter)])            
+            passage_text = self.bible.get(books=[self._map_book_name(book)], chapters=[int(chapter)])            
         else:
             book = parsed_reference
-            passage_text = self.bible.get(books=[book])                      
+            passage_text = self.bible.get(books=[self._map_book_name(book)])                      
         
         passage_text = passage_text.replace("\n", " ")
         passage_text = passage_text.replace("\r", " ")
