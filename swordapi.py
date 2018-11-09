@@ -75,9 +75,9 @@ class SwordApi(BibVerseApi):
         
 
         book_index = self.indices.get_book_name_index(book_name)
-        resolved_moudle_book_name = module_book_names[book_index]
+        resolved_module_book_name = module_book_names[book_index]
 
-        return resolved_moudle_book_name
+        return resolved_module_book_name
 
 
     def get_passage(self, passage):
