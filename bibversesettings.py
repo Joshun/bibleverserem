@@ -6,6 +6,7 @@ import tkinter.scrolledtext
 
 import requests
 import platform
+import webbrowser
 
 import math
 
@@ -94,19 +95,24 @@ class BibVerseSettings:
 
         self.settings_frame = ttk.Frame(self.main_window)
 
+        translation_label = ttk.Label(self.settings_frame, text="Translation: ESV")
+        translation_label.grid(row=0, column=0)
+        translation_button = ttk.Button(self.settings_frame, text="manage...", command=self.show_translation_manager)
+        translation_button.grid(row=0, column=1)
+
         cycle_time_label = ttk.Label(self.settings_frame, text="Cycle time (mins)")
-        cycle_time_label.grid(row=0, column=0)
+        cycle_time_label.grid(row=1, column=0)
         self.cycle_time_slider = tk.Scale(self.settings_frame, from_=1, to=60, orient=tk.HORIZONTAL, resolution=1)
-        self.cycle_time_slider.grid(row=0, column=1)
+        self.cycle_time_slider.grid(row=1, column=1)
 
         settings_delay_label = ttk.Label(self.settings_frame, text="Delay per word (secs)")
-        settings_delay_label.grid(row=1, column=0)
+        settings_delay_label.grid(row=2, column=0)
 
         self.settings_delay_slider = tk.Scale(self.settings_frame, from_=0.1, to=1, orient=tk.HORIZONTAL, resolution=0.1)
-        self.settings_delay_slider.grid(row=1, column=1)
+        self.settings_delay_slider.grid(row=2, column=1)
 
         self.mode_select_frame = tk.Frame(self.settings_frame)
-        self.mode_select_frame.grid(row=2, column=0, columnspan=2)
+        self.mode_select_frame.grid(row=3, column=0, columnspan=2)
 
         self.mode_select_var = tk.IntVar(None, 1)
 
@@ -145,7 +151,7 @@ class BibVerseSettings:
         self.book_menu = ttk.OptionMenu(self.book_frame, self.book_var, options[0], *options)
         self.book_menu.pack()
         
-        self.book_frame.grid(row=3, column=0, columnspan=2)
+        self.book_frame.grid(row=4, column=0, columnspan=2)
 
 
         # settings_frame.
@@ -170,13 +176,13 @@ class BibVerseSettings:
     def set_bybook(self):
         self.chapter_verse_frame.grid_forget()
         self.manage_verses_button.grid_forget()
-        self.book_frame.grid(row=3, column=0, columnspan=2)
+        self.book_frame.grid(row=4, column=0, columnspan=2)
 
     def set_bychapter(self):
         # self.chapter_verse_frame.config.set
         self.manage_verses_button.grid_forget()
         self.book_frame.grid_forget()
-        self.chapter_verse_frame.grid(row=3, column=0, columnspan=2)
+        self.chapter_verse_frame.grid(row=4, column=0, columnspan=2)
 
         # self.manage_verses_button.configure(state='disabled')
         # for child in self.chapter_verse_frame.winfo_children():
@@ -185,7 +191,7 @@ class BibVerseSettings:
     def set_custom(self):
         self.book_frame.grid_forget()
         self.chapter_verse_frame.grid_forget()        
-        self.manage_verses_button.grid(row=3, column=0, columnspan=2)
+        self.manage_verses_button.grid(row=4, column=0, columnspan=2)
         # self.manage_verses_button.configure(state='enable')
         # # self.chapter_verse_frame.pack_forget()
         # # self.manage_verses_button.pack()
@@ -271,6 +277,38 @@ class BibVerseSettings:
         # self.verses_window.attributes('-topmost', False)
         # self.verses_window.deiconify()
         self.verses_window.mainloop()
+    
+    def show_translation_manager(self):
+        def cancel():
+            self.translation_manager_window.destroy()
+        def findmore():
+            webbrowser.open("http://www.crosswire.org/sword/modules/ModDisp.jsp?modType=Bibles")
+
+
+        self.translation_manager_window = tk.Toplevel(self.main_window)
+        self.translation_manager_window.title("Translation Manager")
+
+        add_button = ttk.Button(self.translation_manager_window, text="Add...")
+        add_button.grid(row=0, column=0)
+        remove_button = ttk.Button(self.translation_manager_window, text="Remove")
+        remove_button.grid(row=0, column=1)
+
+        treeview = ttk.Treeview(self.translation_manager_window)
+        treeview.grid(row=1, column=0, columnspan=2)
+        treeview.insert('', 'end', text='ESV (online)')
+
+        find_more_button = ttk.Button(self.translation_manager_window, text="Find more online...", command=findmore)
+        find_more_button.grid(row=2, column=0)
+
+        confirm_button = ttk.Button(self.translation_manager_window, text="Confirm")
+        confirm_button.grid(row=3, column=0)
+        cancel_button = ttk.Button(self.translation_manager_window, text="Cancel", command=cancel)
+        cancel_button.grid(row=3, column=1)
+
+        self.translation_manager_window.focus_set()
+        self.translation_manager_window.grab_set()
+        self.translation_manager_window.mainloop()
+
 
     def get_verses(self):
         return self.verses

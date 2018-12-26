@@ -70,6 +70,7 @@ class SwordApi(BibVerseApi):
         nt_books = [b.name for b in books_dict["nt"]]
         
         module_book_names = ot_books + nt_books
+        print(module_book_names)
         if len(module_book_names) != 66:
             raise HereticalBibleTranslationException("due to indexing limitations, only canonical bibles are supported")
         
